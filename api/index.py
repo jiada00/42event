@@ -13,17 +13,9 @@ load_dotenv()
 
 app = FastAPI()
 
-origins = [
-    # "http://localhost:3000",
-    # "http://localhost:8080",
-    # 'http://0.0.0.0:8000',
-    # 'http://localhost:8000'
-    "*"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,12 +81,17 @@ def zhipu_model(prompt: str, template: str):
 @app.post("/api/generate")
 async def generate(item: Item):
     async def stream():
-        response = zhipu_model(item.prompt, item.template)
-        #response = openai_model(item.prompt)
-        for chunk in response:
-            content = chunk.choices[0].delta.content
-            if content is not None:
-                yield content.encode("utf-8")
+        try:
+            response = zhipu_model(item.prompt, item.template)
+            #response = openai_model(item.prompt)
+            for chunk in response:
+                content = chunk.choices[0].delta.content
+                if content is not None:
+                    yield content.encode("utf-8")
+        except Exception as e:
+            error_message = "An error occurred {}".format(str(e))
+            yield error_message.encode("utf-8")
+            
     return StreamingResponse(stream(),media_type="text/plain")
 
 # if __name__ == "__main__":
