@@ -95,7 +95,7 @@ const Home = () => {
             const URL = process.env.NEXT_PUBLIC_VERCEL_URL
             ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
             : "http://localhost:3000/api";
-
+            console.log(URL)
             const response = await fetch(`${URL}/generate`, {
                 method: 'POST',
                 headers: {
