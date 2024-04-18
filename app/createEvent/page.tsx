@@ -92,7 +92,11 @@ const Home = () => {
         ));
     
         try {
-            const response = await fetch('http://localhost:8000/api/generate', {
+            const URL = process.env.NEXT_PUBLIC_VERCEL_URL
+            ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
+            : "http://localhost:3000/api";
+
+            const response = await fetch(`${URL}/generate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -140,6 +144,16 @@ const Home = () => {
         }
     };
     
+    const triggerAllRequestsSequentially = async () => {
+        for (let index = 0; index < sections.length; index++) {
+            // 检查输入是否为空，如果为空则跳过
+            if (sections[index].inputValue.trim().length === 0) {
+                console.log(`Skipping section ${index} due to empty input.`);
+                continue;
+            }
+            await handleButtonClick(index);
+        }
+    };    
            
     useEffect(() => {
         const activityInfo = localStorage.getItem('activityInfo');
@@ -159,12 +173,25 @@ const Home = () => {
     // 使用 useEffect 来监听 triggerApiCall 的变化
     useEffect(() => {
         // 确保只有在填充输入框后才调用 API
+        // if (triggerApiCall) {
+        //     sections.forEach((_, index) => {
+        //         handleButtonClick(index);
+        //     });
+        //     // 重置 triggerApiCall 以避免无限循环
+        //     setTriggerApiCall(false);
         if (triggerApiCall) {
-            sections.forEach((_, index) => {
-                handleButtonClick(index);
-            });
-            // 重置 triggerApiCall 以避免无限循环
-            setTriggerApiCall(false);
+            // 定义一个异步函数来按顺序触发所有请求
+            const triggerAllRequestsSequentially = async () => {
+                for (let index = 0; index < sections.length; index++) {
+                    // 调用handleButtonClick函数，等待完成后再继续
+                    await handleButtonClick(index);
+                }
+                // 重置 triggerApiCall 以避免无限循环
+                setTriggerApiCall(false);
+            };
+    
+            // 调用上面定义的函数
+            triggerAllRequestsSequentially();        
         }
     }, [triggerApiCall]);
     

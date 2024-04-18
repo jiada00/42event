@@ -97,5 +97,5 @@ async def generate(item: Item):
                 yield content.encode("utf-8")
     return StreamingResponse(stream(),media_type="text/plain")
 
-if __name__ == "__main__":
-    uvicorn.run("api.index:app", port=8000, log_level="info")
+# if __name__ == "__main__":
+#     uvicorn.run("api.index:app", port=8000, log_level="info")
