@@ -225,18 +225,18 @@ const Home = () => {
         if (triggerApiCall) {
             const triggerAllRequestsSequentially = async () => {
                 for (let index = 0; index < sections.length; index++) {
-                    // 使用 setTimeout 来延迟请求
-                    await new Promise((resolve) => {
+                    // 正确使用 Promise 和 setTimeout
+                    await new Promise<void>((resolve) => { // 注意这里指定了 Promise 的类型为 void
                         setTimeout(async () => {
                             try {
                                 await handleButtonClick(index);
+                                resolve(); // 请求成功，调用 resolve
                             } catch (error) {
                                 console.error(`请求 ${index} 失败:`, error);
-                                // 可以在这里决定是否要中断后续请求
-                                // 如果你决定中断，可以使用 reject() 而不是 resolve()
+                                resolve(); // 即使请求失败，也调用 resolve 继续执行后续请求
+                                // 如果你想在请求失败时停止执行，可以调用 reject(error)；但是要记得在外层处理这个拒绝的 Promise
                             }
-                            resolve(); // 确保即使请求失败也继续执行后续请求
-                        }, 5000); // 延迟时间，这里设置为 1000 毫秒（1秒）
+                        }, 1000); // 延迟时间，这里设置为 1000 毫秒（1秒）
                     });
                 }
                 setTriggerApiCall(false);
@@ -245,6 +245,7 @@ const Home = () => {
             triggerAllRequestsSequentially();
         }
     }, [triggerApiCall]);
+    
     
     
     return (
