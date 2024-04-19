@@ -236,7 +236,7 @@ const Home = () => {
                                 resolve(); // 即使请求失败，也调用 resolve 继续执行后续请求
                                 // 如果你想在请求失败时停止执行，可以调用 reject(error)；但是要记得在外层处理这个拒绝的 Promise
                             }
-                        }, 1000); // 延迟时间，这里设置为 1000 毫秒（1秒）
+                        }, 15000); // 延迟时间，这里设置为 1000 毫秒（1秒）
                     });
                 }
                 setTriggerApiCall(false);
@@ -245,8 +245,7 @@ const Home = () => {
             triggerAllRequestsSequentially();
         }
     }, [triggerApiCall]);
-    
-    
+        
     
     return (
         <div className="w-3/4 mt-5 text-black">
