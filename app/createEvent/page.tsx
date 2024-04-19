@@ -79,13 +79,78 @@ const Home = () => {
         setSections(newSections);
     };
 
+    // const handleButtonClick = async (index: number) => {
+    //     const prompt = sections[index].inputValue;
+    //     const template = sections[index].placeholder;
+    //     if(prompt.trim().length === 0) {
+    //         alert('提示词不能为空！')
+    //         return
+    //        }
+    //     // 显示初始加载文本
+    //     setSections(prevSections => prevSections.map((section, idx) =>
+    //         idx === index ? { ...section, outputValue: '正在生成...' } : section
+    //     ));
+    
+    //     try {
+    //         const URL = process.env.NEXT_PUBLIC_VERCEL_URL
+    //         ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
+    //         : "http://localhost:3000/api";
+    //         console.log(URL)
+    //         const response = await fetch(`${URL}/generate`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({ prompt, template }),
+    //         });
+            
+    //         if (response.body){
+    //             const reader = response.body.getReader();
+    //             const decoder = new TextDecoder();
+
+    //             let outputValue = ''; // 用于累积接收到的所有数据块
+    
+    //             // 定义一个递归函数来处理流
+    //             const processStream = async () => {
+    //                 const { value, done } = await reader.read();
+    //                 if (done) {
+    //                     // 数据流结束，更新UI以展示最终输出内容
+    //                     setSections(prevSections => prevSections.map((section, idx) =>
+    //                         idx === index ? { ...section, outputValue } : section
+    //                     ));
+    //                     console.log("data streaming is over.");
+    //                     return; // 数据流结束
+    //                 }
+    //                 const decodedValue = decoder.decode(value, { stream: true });
+    //                 outputValue += decodedValue; // 累积接收到的数据
+    //                 setSections(prevSections => prevSections.map((section, idx) =>
+    //                 idx === index ? { ...section, outputValue: section.outputValue + decodedValue } : section
+    //             ));                        
+    //                 // 递归处理下一块数据
+    //                 await processStream();
+    //             };
+    //             // 开始处理数据流
+    //             await processStream();                
+    //         } else{
+
+    //         }
+
+    //     } catch (error) {
+    //         console.error('Error processing stream:', error);
+    //         // 处理错误，例如，通过在UI中设置错误消息
+    //         setSections(prevSections => prevSections.map((section, idx) =>
+    //             idx === index ? { ...section, outputValue: '生成失败，请重试' } : section
+    //         ));
+    //     }
+    // };
+    
     const handleButtonClick = async (index: number) => {
         const prompt = sections[index].inputValue;
         const template = sections[index].placeholder;
-        if(prompt.trim().length === 0) {
-            alert('提示词不能为空！')
-            return
-           }
+        if (prompt.trim().length === 0) {
+            alert('提示词不能为空！');
+            return;
+        }
         // 显示初始加载文本
         setSections(prevSections => prevSections.map((section, idx) =>
             idx === index ? { ...section, outputValue: '正在生成...' } : section
@@ -93,51 +158,36 @@ const Home = () => {
     
         try {
             const URL = process.env.NEXT_PUBLIC_VERCEL_URL
-            ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api`
-            : "http://localhost:3000/api";
-            console.log(URL)
-            const response = await fetch(`${URL}/generate`, {
+                ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}/api/generate`
+                : "http://localhost:3000/api/generate";
+            // console.log(URL);
+            const response = await fetch("/api/generate", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ prompt, template }),
             });
-            
-            if (response.body){
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-
-                let outputValue = ''; // 用于累积接收到的所有数据块
     
-                // 定义一个递归函数来处理流
-                const processStream = async () => {
-                    const { value, done } = await reader.read();
-                    if (done) {
-                        // 数据流结束，更新UI以展示最终输出内容
-                        setSections(prevSections => prevSections.map((section, idx) =>
-                            idx === index ? { ...section, outputValue } : section
-                        ));
-                        console.log("data streaming is over.");
-                        return; // 数据流结束
-                    }
-                    const decodedValue = decoder.decode(value, { stream: true });
-                    outputValue += decodedValue; // 累积接收到的数据
-                    setSections(prevSections => prevSections.map((section, idx) =>
-                    idx === index ? { ...section, outputValue: section.outputValue + decodedValue } : section
-                ));                        
-                    // 递归处理下一块数据
-                    await processStream();
-                };
-                // 开始处理数据流
-                await processStream();                
-            } else{
-
+            if (response.ok) {
+                const data = await response.json(); // 假设后端返回的是JSON格式的数据
+                // 假设后端返回的数据中有一个字段是output，包含了生成的文本
+                const outputValue = data.output || '生成失败，请重试';
+    
+                // 更新UI以展示最终输出内容
+                setSections(prevSections => prevSections.map((section, idx) =>
+                    idx === index ? { ...section, outputValue } : section
+                ));
+            } else {
+                // 处理HTTP错误状态
+                console.error('HTTP error:', response.status);
+                setSections(prevSections => prevSections.map((section, idx) =>
+                    idx === index ? { ...section, outputValue: '生成失败，请重试' } : section
+                ));
             }
-
         } catch (error) {
-            console.error('Error processing stream:', error);
-            // 处理错误，例如，通过在UI中设置错误消息
+            console.error('Error processing request:', error);
+            // 处理请求发送过程中的错误
             setSections(prevSections => prevSections.map((section, idx) =>
                 idx === index ? { ...section, outputValue: '生成失败，请重试' } : section
             ));

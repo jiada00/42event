@@ -1,9 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "fastapi-dev": "pip3 install -r requirements.txt && python3 -m uvicorn api.index:app --reload",
-    "next-dev": "next dev",    
-    "dev": "concurrently \"pnpm run next-dev\" \"pnpm run fastapi-dev\"",
+    "dev":"next dev",
     "build": "next build",
     "start": "next start"
   },
@@ -12,6 +10,7 @@
     "@supabase/supabase-js": "latest",
     "autoprefixer": "10.4.17",
     "concurrently": "^8.2.2",
+    "dotenv": "^16.4.5",
     "geist": "^1.2.1",
     "next": "latest",
     "postcss": "8.4.33",
@@ -19,15 +18,13 @@
     "react-dom": "18.2.0",
     "react-router-dom": "^6.22.3",
     "tailwindcss": "3.4.1",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3",
+    "zhipuai-sdk-nodejs-v4": "^0.1.12"
   },
   "devDependencies": {
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "encoding": "^0.1.13"
-  },
-  "engines": {
-    "node": "18.x"
   }
 }
