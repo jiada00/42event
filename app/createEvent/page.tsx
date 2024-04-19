@@ -222,28 +222,30 @@ const Home = () => {
     
     // 使用 useEffect 来监听 triggerApiCall 的变化
     useEffect(() => {
-        // 确保只有在填充输入框后才调用 API
-        // if (triggerApiCall) {
-        //     sections.forEach((_, index) => {
-        //         handleButtonClick(index);
-        //     });
-        //     // 重置 triggerApiCall 以避免无限循环
-        //     setTriggerApiCall(false);
         if (triggerApiCall) {
-            // 定义一个异步函数来按顺序触发所有请求
             const triggerAllRequestsSequentially = async () => {
                 for (let index = 0; index < sections.length; index++) {
-                    // 调用handleButtonClick函数，等待完成后再继续
-                    await handleButtonClick(index);
+                    // 使用 setTimeout 来延迟请求
+                    await new Promise((resolve) => {
+                        setTimeout(async () => {
+                            try {
+                                await handleButtonClick(index);
+                            } catch (error) {
+                                console.error(`请求 ${index} 失败:`, error);
+                                // 可以在这里决定是否要中断后续请求
+                                // 如果你决定中断，可以使用 reject() 而不是 resolve()
+                            }
+                            resolve(); // 确保即使请求失败也继续执行后续请求
+                        }, 5000); // 延迟时间，这里设置为 1000 毫秒（1秒）
+                    });
                 }
-                // 重置 triggerApiCall 以避免无限循环
                 setTriggerApiCall(false);
             };
     
-            // 调用上面定义的函数
-            triggerAllRequestsSequentially();        
+            triggerAllRequestsSequentially();
         }
     }, [triggerApiCall]);
+    
     
     return (
         <div className="w-3/4 mt-5 text-black">
